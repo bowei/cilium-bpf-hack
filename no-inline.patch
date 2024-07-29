@@ -1,0 +1,37 @@
+diff --git a/bpf/Makefile b/bpf/Makefile
+index ac68524263..7728974394 100644
+--- a/bpf/Makefile
++++ b/bpf/Makefile
+@@ -278,3 +278,4 @@ ifeq (, $(BEAR_CLI))
+ else
+ 	bear -- make
+ endif
++
+diff --git a/bpf/include/bpf/compiler.h b/bpf/include/bpf/compiler.h
+index d685e454e8..2b0c4cc673 100644
+--- a/bpf/include/bpf/compiler.h
++++ b/bpf/include/bpf/compiler.h
+@@ -42,7 +42,9 @@
+ #endif
+ 
+ #undef __always_inline		/* stddef.h defines its own */
+-#define __always_inline		inline __attribute__((always_inline))
++//#define __always_inline		inline __attribute__((always_inline))
++
++#define __always_inline
+ 
+ #ifndef __stringify
+ # define __stringify(X)		#X
+diff --git a/bpf/lib/source_info.h b/bpf/lib/source_info.h
+index 5cdc083f4e..79324a2d18 100644
+--- a/bpf/lib/source_info.h
++++ b/bpf/lib/source_info.h
+@@ -3,7 +3,7 @@
+ #pragma once
+ 
+ #ifndef BPF_TEST
+-#define __MAGIC_FILE__ (__u8)__id_for_file(__FILE_NAME__)
++#define __MAGIC_FILE__ (__u8)__id_for_file(__FILE__)
+ #define __MAGIC_LINE__ __LINE__
+ #else
+ /* bpf tests assert that metrics get updated by performing a map lookup.

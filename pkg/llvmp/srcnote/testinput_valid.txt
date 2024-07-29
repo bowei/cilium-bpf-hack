@@ -1,0 +1,4 @@
+# valid file
+file1:100:Note:some text
+file1:101:Note:some text
+file1:102:Note:some text:some text
