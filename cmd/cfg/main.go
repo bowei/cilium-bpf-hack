@@ -15,6 +15,7 @@ import (
 
 	"github.com/bowei/cilium-bpf-hack/pkg/llvmp"
 	"github.com/bowei/cilium-bpf-hack/pkg/llvmp/ignore"
+	"github.com/bowei/cilium-bpf-hack/pkg/llvmp/rawcg"
 	"github.com/bowei/cilium-bpf-hack/pkg/llvmp/srcnote"
 )
 
@@ -82,11 +83,15 @@ func main() {
 			panic(err)
 		}
 
-		out := llvmp.RawCG(m, &llvmp.RawCGParams{
+		out, err := rawcg.Run(m, &rawcg.Params{
 			Start:   theFlags.start,
 			Ignored: ignored,
 			SrcAn:   srcAn,
 		})
+		if err != nil {
+			// TODO: error
+			fmt.Printf("// ERROR: rawcg.Run() = %v\n", err)
+		}
 		fmt.Print(out)
 	case "cg":
 		// TODO

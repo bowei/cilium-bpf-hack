@@ -36,7 +36,7 @@ type ClosureOptions struct {
 	FollowTailCalls bool
 }
 
-func Closure(m *Module, startFn string, fnCallback func(m *Module, fn *FnDef, options ClosureOptions) bool) error {
+func Closure(m *Module, startFn string, fnCallback func(m *Module, fn *FnDef) bool, options ClosureOptions) error {
 	fn, ok := m.Functions[startFn]
 	if !ok {
 		return fmt.Errorf("startFn not found: %q", startFn)
