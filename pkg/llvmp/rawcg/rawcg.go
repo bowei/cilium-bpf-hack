@@ -1,3 +1,4 @@
+// Package rawcg generates a raw call graph starting from a given function.
 package rawcg
 
 import (
