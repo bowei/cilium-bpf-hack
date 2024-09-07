@@ -27,10 +27,16 @@ func dotFileGraph(g *Graph) string {
 	var b strings.Builder
 
 	for _, n := range g.Nodes {
+		if n.Hidden {
+			continue
+		}
 		b.WriteString(n.render(g.indent))
 		b.WriteString("\n")
 	}
 	for _, e := range g.Edges {
+		if e.A.Hidden || e.B.Hidden {
+			continue
+		}
 		b.WriteString(e.render(g.indent))
 		b.WriteString("\n")
 	}

@@ -50,16 +50,14 @@ type runner struct {
 func (r *runner) do() (string, error) {
 	fmt.Printf("// RawCG %s\n", r.params.Start)
 
-	// Create the function nodes.
-	err := llvmp.Closure(r.m, r.params.Start, r.createNode, llvmp.ClosureOptions{
-		FollowTailCalls: true,
-	})
+	err := llvmp.Closure(r.m, r.params.Start, r.createNode, llvmp.ClosureOptions{})
 	if err != nil {
 		fmt.Printf("// ERROR: %v\n", fmt.Errorf("RawCG: %w", err))
 		// TODO: return code.
 	}
 
 	r.createEdges() // TODO: error
+	r.hideUnreachable()
 
 	return gviz.DotFile(r.g), nil
 }
@@ -67,13 +65,12 @@ func (r *runner) do() (string, error) {
 func (r *runner) createNode(_ *llvmp.Module, fn *llvmp.FnDef) bool {
 	fmt.Printf("// Function %q (%s:%d)\n", fn.Name, fn.File, fn.Line)
 
-	if r.params.Ignored.Match(fn.Name) {
-		fmt.Printf("// Node (skipped) %s\n", fn.Name)
-		return true
-	}
-
 	fNode := r.g.NewNode(fn.Name)
 	fNode.Attribs("shape", "rectangle")
+
+	if r.params.Ignored.Match(fn.Name) {
+		fNode.Hidden = true
+	}
 
 	r.f2n[fn.Name] = rawCGData{
 		node: fNode,
@@ -218,10 +215,6 @@ func (r *runner) addAnnotations(fileName string, start, end int, node *gviz.Node
 
 func (r *runner) createEdges() {
 	for _, d := range r.f2n {
-		if r.params.Ignored.Match(d.fn.Name) {
-			fmt.Printf("// Edge: Node (skipped) %s\n", d.fn.Name)
-			continue
-		}
 		for i, step := range d.fn.Steps {
 			switch step.Kind {
 			case llvmp.StepFnCall:
@@ -249,11 +242,33 @@ func (r *runner) createEdges() {
 				e := r.g.NewEdge(d.node, targetD.node)
 				e.APort = fmt.Sprintf("s%d", i)
 				e.BPort = "Start0"
+				e.Attribs("color", "orange")
 			case llvmp.StepRet:
 				// Ret does not create a link.
 			default:
 				fmt.Printf("// ERROR: Edge: Step (skipped) %v\n", step)
 			}
+		}
+	}
+}
+
+func (r *runner) hideUnreachable() {
+	start := r.f2n[r.params.Start]
+
+	visible := map[*gviz.Node]bool{}
+	gviz.Traverse(
+		start.node,
+		func(n *gviz.Node) bool {
+			if !n.Hidden {
+				visible[n] = true
+				return true
+			}
+			return false
+		},
+		func(e *gviz.Edge) bool { return !e.B.Hidden })
+	for _, n := range r.g.Nodes {
+		if !visible[n] {
+			n.Hidden = true
 		}
 	}
 }

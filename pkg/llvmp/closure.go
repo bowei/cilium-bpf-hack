@@ -33,7 +33,7 @@ func (q *closureQueue) pop() *FnDef {
 func (q *closureQueue) empty() bool { return len(q.q) == 0 }
 
 type ClosureOptions struct {
-	FollowTailCalls bool
+	IgnoreEdge func(*Module, *FnDef, *Step) bool
 }
 
 func Closure(m *Module, startFn string, fnCallback func(m *Module, fn *FnDef) bool, options ClosureOptions) error {
@@ -54,10 +54,9 @@ func Closure(m *Module, startFn string, fnCallback func(m *Module, fn *FnDef) bo
 			return nil
 		}
 		for _, step := range next.Steps {
-			if !options.FollowTailCalls && step.Kind == StepTailCall {
+			if options.IgnoreEdge != nil && options.IgnoreEdge(m, next, step) {
 				continue
 			}
-
 			fnName := step.Function
 			fn, ok := m.Functions[fnName]
 			if !ok {

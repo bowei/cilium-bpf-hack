@@ -59,6 +59,9 @@ func (g *Graph) NewEdge(a, b *Node) *Edge {
 	}
 	g.Edges[EdgeMapKey(e)] = e
 
+	a.from = append(a.from, e)
+	b.to = append(b.to, e)
+
 	return e
 }
 
@@ -88,4 +91,31 @@ func (g *Graph) indentStr() string {
 		ret += " "
 	}
 	return ret
+}
+
+func Traverse(start *Node, onNode func(*Node) bool, onEdge func(*Edge) bool) {
+	q := []*Node{start}
+	empty := func() bool { return len(q) == 0 }
+	pop := func() *Node {
+		ret := q[0]
+		q = q[1:]
+		return ret
+	}
+
+	done := map[string]bool{}
+
+	for !empty() {
+		n := pop()
+		if !onNode(n) {
+			continue
+		}
+		done[n.FullName()] = true
+		for _, e := range n.from {
+			if onEdge(e) {
+				if !done[e.B.FullName()] {
+					q = append(q, e.B)
+				}
+			}
+		}
+	}
 }

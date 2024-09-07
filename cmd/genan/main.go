@@ -72,7 +72,7 @@ func sanitize(s string) string {
 		switch {
 		case ('a' <= c && c <= 'z'), ('A' <= c && c <= 'Z'), ('0' <= c && c <= '9'):
 			ret = ret + string(c)
-		case c == '#', c == '/', c == '*', c == '!', c == '|', c == '_':
+		case c == '#', c == '/', c == '*', c == '!', c == '|', c == '_', c == '!':
 			ret = ret + string(c)
 		case c == '&':
 			ret = ret + "&amp;"

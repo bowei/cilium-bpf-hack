@@ -8,10 +8,15 @@ import (
 type Node struct {
 	Name   string
 	Parent *Graph
+
 	Tags   map[string]string
+	Hidden bool
 
 	rows    [][]NodeCol
 	attribs map[string]string
+
+	from []*Edge
+	to   []*Edge
 }
 
 type NodeCol struct {
@@ -34,7 +39,7 @@ func (n *Node) AddRow(nc []NodeCol) {
 
 func (n *Node) Attribs(attribPairs ...string) {
 	if len(attribPairs)%2 != 0 {
-		panic("XXX")
+		panic(fmt.Sprintf("non-paired attribPairs (must be even length): %v", attribPairs))
 	}
 	for i := 0; i < len(attribPairs); i += 2 {
 		key := attribPairs[i]
