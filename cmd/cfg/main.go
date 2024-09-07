@@ -26,29 +26,27 @@ var (
 		start      string
 		ignoreFcns []string
 		anFiles    []string
-	}{
-		ignoreFcns: []string{"@default"},
-	}
+	}{}
 )
 
 func init() {
 	flag.StringVar(&theFlags.mode, "mode", "", "rawcg | full")
 	flag.StringVar(&theFlags.in, "in", "", "input file")
-	flag.StringVar(&theFlags.start, "start", "", "name of function to start call graph from")
+	flag.StringVar(&theFlags.start, "start", "", "Name of function to start call graph from")
 
-	flag.Func("ignore", "ignore function with this name. can specify multiple times",
+	flag.Func("ignore", "Ignore function with this name. Can specify multiple times. Defaults to @default",
 		func(fn string) error {
 			theFlags.ignoreFcns = append(theFlags.ignoreFcns, fn)
 			return nil
 		})
-	flag.Func("an", "annotation file to read. See pkg/llvmp/srcnote for the file format.",
+	flag.Func("an", "Annotation file to read. See pkg/llvmp/srcnote for the file format.",
 		func(fn string) error {
 			theFlags.anFiles = append(theFlags.anFiles, fn)
 			return nil
 		})
 }
 
-func checkFlags() {
+func checkAndDefaultFlags() {
 	switch theFlags.mode {
 	case "rawcg":
 		if theFlags.start == "" {
@@ -59,12 +57,15 @@ func checkFlags() {
 		fmt.Printf("invalid mode %q\n", theFlags.mode)
 		os.Exit(1)
 	}
+	if theFlags.ignoreFcns == nil {
+		theFlags.ignoreFcns = []string{"@default"}
+	}
 }
 
 func main() {
 	flag.Parse()
 
-	checkFlags()
+	checkAndDefaultFlags()
 
 	m, err := llvmp.ParseLL(theFlags.in)
 	if err != nil {

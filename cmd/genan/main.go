@@ -41,10 +41,24 @@ func main() {
 
 		switch {
 		case conditionalRe.MatchString(line):
-			fmt.Printf("%s:%d:%s:%s\n", fileName, curLine, srcnote.KindConditional, sanitize(line))
+			a := srcnote.Annotation{
+				FileName: fileName,
+				Line:     curLine,
+				Kind:     srcnote.KindConditional,
+				Tags:     nil,
+				Text:     sanitize(line),
+			}
+			fmt.Println(a.String())
 		case noteRe.MatchString(line):
 			matches := noteRe.FindStringSubmatch(line)
-			fmt.Printf("%s:%d:%s:%s\n", fileName, curLine, srcnote.KindNote, matches[1])
+			a := srcnote.Annotation{
+				FileName: fileName,
+				Line:     curLine,
+				Kind:     srcnote.KindNote,
+				Tags:     nil,
+				Text:     sanitize(matches[1]),
+			}
+			fmt.Println(a.String())
 		}
 	}
 	if err := scanner.Err(); err != nil {

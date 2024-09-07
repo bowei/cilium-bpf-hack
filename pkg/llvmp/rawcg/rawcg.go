@@ -118,34 +118,8 @@ func (r *runner) createNode(_ *llvmp.Module, fn *llvmp.FnDef) bool {
 		if step.File != fn.File {
 			fmt.Printf("// ERROR: source file mismatch: %q != %q\n", step.File, fn.File)
 		}
-		for _, an := range r.params.SrcAn.Lookup(fn.File, prevLine, step.Line) {
-			switch an.Kind {
-			case srcnote.KindConditional:
-				fNode.AddRow([]gviz.NodeCol{
-					{},
-					{
-						Text: fmt.Sprintf("%s:%d", an.FileName, an.Line),
-					},
-					{
-						Text:    an.Text,
-						Attribs: condAttrib,
-					},
-				})
-			case srcnote.KindNote:
-				fNode.AddRow([]gviz.NodeCol{
-					{},
-					{
-						Text: fmt.Sprintf("%s:%d", an.FileName, an.Line),
-					},
-					{
-						Text:    an.Text,
-						Attribs: noteAttrib,
-					},
-				})
-			default:
-				fmt.Printf("// ERROR: unhandled source annotation: %v\n", an.Kind)
-			}
-		}
+
+		r.addAnnotations(fn.File, prevLine, step.Line, fNode)
 		prevLine = step.Line
 
 		switch step.Kind {
@@ -205,6 +179,41 @@ func (r *runner) createNode(_ *llvmp.Module, fn *llvmp.FnDef) bool {
 		}
 	}
 	return true
+}
+
+func (r *runner) addAnnotations(fileName string, start, end int, node *gviz.Node) {
+	for _, an := range r.params.SrcAn.Lookup(fileName, start, end) {
+		for k, v := range an.Tags {
+			// TODO: handle overwrite or multiple
+			node.Tags[k] = v
+		}
+		switch an.Kind {
+		case srcnote.KindConditional:
+			node.AddRow([]gviz.NodeCol{
+				{},
+				{
+					Text: fmt.Sprintf("%s:%d", an.FileName, an.Line),
+				},
+				{
+					Text:    an.Text,
+					Attribs: condAttrib,
+				},
+			})
+		case srcnote.KindNote:
+			node.AddRow([]gviz.NodeCol{
+				{},
+				{
+					Text: fmt.Sprintf("%s:%d", an.FileName, an.Line),
+				},
+				{
+					Text:    an.Text,
+					Attribs: noteAttrib,
+				},
+			})
+		default:
+			fmt.Printf("// ERROR: unhandled source annotation: %v\n", an.Kind)
+		}
+	}
 }
 
 func (r *runner) createEdges() {

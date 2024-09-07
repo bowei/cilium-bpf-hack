@@ -10,6 +10,7 @@ func NewGraph(name string) *Graph {
 		Nodes:  map[string]*Node{},
 		Edges:  map[string]*Edge{},
 		Graphs: map[string]*Graph{},
+		Tags:   map[string]string{},
 	}
 	return g
 }
@@ -33,6 +34,7 @@ func (g *Graph) NewGraph(name string) *Graph {
 	sg.Parent = g
 	sg.indent = g.indent + 2
 	g.Graphs[name] = sg
+
 	return sg
 }
 
@@ -40,15 +42,23 @@ func (g *Graph) NewNode(name string) *Node {
 	n := &Node{
 		Name:    name,
 		Parent:  g,
+		Tags:    map[string]string{},
 		attribs: map[string]string{},
 	}
 	g.Nodes[name] = n
+
 	return n
 }
 
 func (g *Graph) NewEdge(a, b *Node) *Edge {
-	e := &Edge{A: a, B: b, parent: g}
+	e := &Edge{
+		A:      a,
+		B:      b,
+		Tags:   map[string]string{},
+		parent: g,
+	}
 	g.Edges[EdgeMapKey(e)] = e
+
 	return e
 }
 

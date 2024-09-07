@@ -13,15 +13,15 @@ func TestReadFile(t *testing.T) {
 	}
 
 	if diff := cmp.Diff(alist, []*Annotation{
-		{KindNote, "file1", 100, "some text"},
-		{KindNote, "file1", 101, "some text"},
-		{KindNote, "file1", 102, "some text:some text"},
+		{"file1", 100, KindConditional, nil, "some text"},
+		{"file1", 101, KindConditional, map[string]string{"tag1": ""}, "Note:some text"},
+		{"file1", 102, KindNote, map[string]string{"tag2": "abc", "tag3": ""}, "Note:some text:some text"},
 	}); diff != "" {
 		t.Errorf("Diff =\n%s", diff)
 	}
 
 	t.Logf("%+v", alist)
-	alist, err = ReadFile("testinput_invalid.txt")
+	_, err = ReadFile("testinput_invalid.txt")
 	if err == nil {
 		t.Errorf("ReadFile() = %v, want != nil", err)
 	}

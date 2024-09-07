@@ -1,4 +1,4 @@
 # valid file
-file1:100:Note:some text
-file1:101:Note:some text
-file1:102:Note:some text:some text
+file1:100:Conditional::some text
+file1:101:Conditional:tag1:Note:some text
+file1:102:Note:tag2=abc,tag3:Note:some text:some text
